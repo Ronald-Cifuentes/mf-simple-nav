@@ -1,10 +1,35 @@
+const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+
+const getPath = () => {
+  switch (process.env.NODE_ENV) {
+    case 'production':
+      return path.resolve(__dirname, 'dist');
+    case 'local:production':
+      return path.resolve(__dirname, 'public');
+    default:
+      return 'http://localhost:3001/';
+  }
+};
+
+const getPublicPath = () => {
+  switch (process.env.NODE_ENV) {
+    case 'production':
+      return 'https://mf-simple-nav.vercel.app/';
+    case 'local:production':
+      return 'http://localhost:5500/public/';
+    default:
+      return 'http://localhost:3001/';
+  }
+};
 
 const deps = require('./package.json').dependencies;
 module.exports = {
   output: {
-    publicPath: 'http://localhost:3001/',
+    path: getPath(),
+    publicPath: getPublicPath(),
   },
 
   resolve: {
@@ -40,6 +65,7 @@ module.exports = {
   },
 
   plugins: [
+    new CleanWebpackPlugin(),
     new ModuleFederationPlugin({
       name: 'mf_simple_nav',
       filename: 'remoteEntry.js',
